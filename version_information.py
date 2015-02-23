@@ -89,10 +89,11 @@ class VersionInformation(Magics):
             ("OS", platform.platform().replace('-', ' '))
             ]
 
-        modules = line.replace(' ', '').split(",")
+        modules = line.split(",")
 
         for module in modules:
             if len(module) > 0:
+                module = module.strip()
                 if module[0] in ["'", '"']:
                     # "module" is a command
                     proc = subprocess.Popen(module, shell=True,
