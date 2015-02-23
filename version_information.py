@@ -97,7 +97,7 @@ class VersionInformation(Magics):
                     # "module" is a command
                     proc = subprocess.Popen(module, shell=True,
                                             stdout=subprocess.PIPE)
-                    version = proc.readline()
+                    version = proc.stdout.readline()
                     proc.terminate()
                     self.packages.append((module[1:-1], version))
                 else:
