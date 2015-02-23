@@ -92,8 +92,8 @@ class VersionInformation(Magics):
         modules = line.split(",")
 
         for module in modules:
+            module = module.strip()
             if len(module) > 0:
-                module = module.strip()
                 if module[0] in ["'", '"']:
                     # "module" is a command
                     cmd = module[1:-1]
