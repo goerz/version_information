@@ -49,11 +49,11 @@ Usage
 """
 import cgi
 import json
-import sys
 import time
 import locale
 import IPython
 import platform
+import subprocess
 from IPython.core.magic import magics_class, line_magic, Magics
 
 try:
@@ -93,20 +93,28 @@ class VersionInformation(Magics):
 
         for module in modules:
             if len(module) > 0:
-                try:
-                    code = ("import %s; version=%s.__version__" %
-                            (module, module))
-                    ns_g = ns_l = {}
-                    exec(compile(code, "<string>", "exec"), ns_g, ns_l)
-                    self.packages.append((module, ns_l["version"]))
-                except Exception as e:
+                if module[0] in ["'", '"']:
+                    # "module" is a command
+                    proc = subprocess.Popen(module, shell=True,
+                                            stdout=subprocess.PIPE)
+                    version = proc.readline()
+                    proc.terminate()
+                    self.packages.append((module[1:-1], version))
+                else:
                     try:
-                        if pkg_resources is None:
-                            raise
-                        version = pkg_resources.require(module)[0].version
-                        self.packages.append((module, version))
+                        code = ("import %s; version=%s.__version__" %
+                                (module, module))
+                        ns_g = ns_l = {}
+                        exec(compile(code, "<string>", "exec"), ns_g, ns_l)
+                        self.packages.append((module, ns_l["version"]))
                     except Exception as e:
-                        self.packages.append((module, str(e)))
+                        try:
+                            if pkg_resources is None:
+                                raise
+                            version = pkg_resources.require(module)[0].version
+                            self.packages.append((module, version))
+                        except Exception as e:
+                            self.packages.append((module, str(e)))
 
         return self
 
