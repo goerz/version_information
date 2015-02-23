@@ -96,11 +96,12 @@ class VersionInformation(Magics):
                 module = module.strip()
                 if module[0] in ["'", '"']:
                     # "module" is a command
-                    proc = subprocess.Popen(module, shell=True,
+                    cmd = module[1:-1]
+                    proc = subprocess.Popen(cmd, shell=True,
                                             stdout=subprocess.PIPE)
                     version = proc.stdout.readline()
                     proc.terminate()
-                    self.packages.append((module[1:-1], version))
+                    self.packages.append((cmd, version))
                 else:
                     try:
                         code = ("import %s; version=%s.__version__" %
