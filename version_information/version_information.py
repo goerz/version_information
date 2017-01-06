@@ -98,13 +98,14 @@ class VersionInformation(Magics):
                     # "module" is a command
                     cmd = module[1:-1]
                     proc = subprocess.Popen(cmd, shell=True,
-                                            stdout=subprocess.PIPE)
-                    version = proc.stdout.readline()
+                                            stdout=subprocess.PIPE,
+                                            universal_newlines=True)
+                    version = proc.stdout.readline().strip()
                     proc.terminate()
                     self.packages.append((cmd, version))
                 else:
                     try:
-                        code = ("import %s; version=%s.__version__" %
+                        code = ("import %s; version=str(%s.__version__)" %
                                 (module, module))
                         ns_g = ns_l = {}
                         exec(compile(code, "<string>", "exec"), ns_g, ns_l)
@@ -188,7 +189,7 @@ class VersionInformation(Magics):
 
         text = "Software versions\n"
         for name, version in self.packages:
-            text += "%s %s\n" % (name, version)
+            text += "%s: %s\n" % (name, version)
 
         try:
             text += "%s" % time.strftime(timefmt)
